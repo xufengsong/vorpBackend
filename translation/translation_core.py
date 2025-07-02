@@ -17,9 +17,12 @@ For every key provide:
   "base"    — dictionary form (verbs/adjectives end in -다; nouns without particles)
   "meaning" — concise English gloss.
               • If the word is a verb, start with "to " (e.g. "to eat").
+  "partOfSpeach: - classification of "base" based on their grammatical function and the roles they play within a sentence.
 
 Return nothing but valid JSON.
 """.strip()
+
+
 
 def userInputProcess(input: str) -> List[str]:
     inputTokens = input.split(" ")
@@ -75,6 +78,25 @@ def callLocalMachine_TranslationwContext(
     
     return json.loads(actual_response)
 
+
+def callOpenAI_TranslationwContext(
+    client: OpenAI,
+    tokens: List[str],
+    model: str = "gpt-4.1-mini",
+) -> Dict[str, Dict[str, str]]:
+    """Call OpenAI once and parse JSON."""
+    message_user = "Surface tokens (one per line):\n" + "\n".join(tokens)
+    rsp = client.chat.completions.create(
+        model=model,
+        temperature=0,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": PROMPT_TEMPLATE},
+            {"role": "user", "content": message_user},
+        ],
+    )
+
+    return json.loads(rsp.choices[0].message.content)
 
 if __name__ == "__main__":
     User_Input = """

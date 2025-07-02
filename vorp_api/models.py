@@ -38,6 +38,12 @@ class User(AbstractUser):
         related_name="known_by_users",
         blank=True
     )
+
+    unknown_words = models.ManyToManyField(
+        Vocabulary,
+        related_name="unknown_by_users",
+        blank=True
+    )
     # The 'learning_words' field will be implicitly created by the model below.
 
     # We are overriding the default 'email' field to make it unique,

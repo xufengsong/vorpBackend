@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'vorp_api.apps.VorpApiConfig',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    'vorp_api.middleware.DebugUserMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -114,6 +118,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Add this setting to tell Django how to authenticate users
+AUTHENTICATION_BACKENDS = [
+    'vorp_api.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend', # Keep the default backend for admin login
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -140,13 +150,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Add this at the end of the file
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  # Your React app's address
-    "http://127.0.0.1:8080",
+    # "http://127.0.0.1:8080",
 ]
 
 # Additionally, for Django 4.0+ you should also configure CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8080",
-    "http://127.0.0.1:8080",
+    # "http://127.0.0.1:8080",
 ]
 
 # Add this line to specify your custom user model
@@ -155,8 +165,45 @@ AUTH_USER_MODEL = 'vorp_api.User'
 # This tells Django it's okay to accept cookies from those origins.
 CORS_ALLOW_CREDENTIALS = True
 
+# You might also need to explicitly state which headers are allowed.
+# This tells the browser that Content-Type and the CSRF token header are okay.
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 # This ensures the session cookie can be sent cross-site.
 # Modern browsers require SameSite='None' to be paired with Secure=True.
 # This works fine on localhost for modern browsers.
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False 
+SESSION_COOKIE_SECURE = False
+# When you go to production (HTTPS), you should set these back to True.
+
+# Add these new lines:
+SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Add this entire block
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # This is the key. It enables session-based authentication, which
+        # is what you are using. It correctly handles CSRF for POST/PUT/DELETE
+        # requests while allowing safe GET requests.
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # This sets a sensible default: all API endpoints require the
+        # user to be authenticated unless specified otherwise.
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
