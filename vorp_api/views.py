@@ -19,12 +19,15 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from .forms import CustomUserCreationForm
 import json
+import openai
 from openai import OpenAI
 import openai
 import os
 from dotenv import load_dotenv
 
-# =================================================================
+import os
+from dotenv import load_dotenv
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -32,7 +35,7 @@ load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-# =================================================================
+
 
 @api_view(['GET']) # Use DRF's decorator
 @permission_classes([AllowAny]) # Make this view public
