@@ -10,12 +10,14 @@ class Vocabulary(models.Model):
     This model stores a single vocabulary word, its meanings, and its
     frequency rank.
     """
-    word = models.CharField(max_length=255, unique=True, db_index=True)
+    # word = models.CharField(max_length=255, unique=True, db_index=True)
+    word = models.JSONField(default=list)
+    baseForm = models.CharField(max_length=255, unique=True, db_index=True, default='')
     meanings = models.JSONField(default=list) # Stores a list of strings
     frequency_rank = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     def __str__(self):
-        return self.word
+        return self.baseForm
 
     class Meta:
         ordering = ['frequency_rank']
