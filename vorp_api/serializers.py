@@ -7,9 +7,11 @@ class UserSerializer(serializers.ModelSerializer):
         # Define the fields you want to send to the frontend.
         # NEVER include the password hash.
         fields = [
-            'id', 
+            'id',  # don't delete this?
             'email', 
-            'name', 
+            'name', # don't delete this?
+            'username',
+            'unknown_words',
             'motherLanguage', 
             'targetLanguage', 
             'fluencyLevel'
